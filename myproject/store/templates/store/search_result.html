@@ -1,0 +1,212 @@
+
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Search Results</title>
+
+<!-- REQUIRED FOR MOBILE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+h2 {
+    text-align: center;
+    margin: 20px 10px;
+}
+
+.list-container {
+    max-width: 900px;
+    margin: 15px auto;
+    padding: 0 10px;
+}
+
+/* ITEM CARD */
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    color: inherit;
+    text-decoration: none;
+}
+
+.list-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-details h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.price {
+    color: green;
+    font-weight: bold;
+}
+
+/* MOBILE STACK LAYOUT */
+@media (max-width: 767px) {
+    .list-item {
+        flex-direction: row;
+    }
+
+    .list-item img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .item-details h3 {
+        font-size: 15px;
+    }
+}
+
+/* Desktop pagination */
+.pagination {
+    text-align: center;
+    margin: 25px 0;
+}
+
+/* Hide pagination on mobile */
+@media (max-width: 767px) {
+    .pagination {
+        display: none;
+    }
+}
+
+.pagination a {
+    padding: 6px 12px;
+    background: #ff6600;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+/* Loader */
+#loader {
+    text-align: center;
+    padding: 15px;
+    display: none;
+    font-weight: bold;
+}
+
+/* IntersectionObserver trigger */
+#scroll-sentinel {
+    height: 1px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Search Results for "{{ query }}"</h2>
+
+<div class="list-container" id="product-list">
+{% for product in page_obj %}
+<a href="{% url 'product_detail' product.id %}" class="list-item">
+    {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% endif %}
+    <div class="item-details">
+        <h3>{{ product.name }}</h3>
+        <p class="price">₹{{ product.price }}</p>
+    </div>
+</a>
+{% endfor %}
+</div>
+
+<div id="loader">Loading more products...</div>
+
+<!-- SCROLL TRIGGER -->
+<div id="scroll-sentinel"></div>
+
+<!-- DESKTOP PAGINATION (UNCHANGED) -->
+<div class="pagination">
+{% if page_obj.has_previous %}
+<a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">Previous</a>
+{% endif %}
+
+<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+{% if page_obj.has_next %}
+<a id="next-page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">Next</a>
+{% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* MOBILE ONLY */
+    if (window.innerWidth > 767) return;
+
+    let nextPageUrl = document.getElementById("next-page-link")?.href;
+    let loading = false;
+
+    const sentinel = document.getElementById("scroll-sentinel");
+    const loader = document.getElementById("loader");
+    const productList = document.getElementById("product-list");
+
+    if (!nextPageUrl) return;
+
+    const observer = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        if (!nextPageUrl || loading) return;
+        loadMore();
+    }, { rootMargin: "300px" });
+
+    observer.observe(sentinel);
+
+    function loadMore() {
+        loading = true;
+        loader.style.display = "block";
+
+        fetch(nextPageUrl)
+            .then(res => res.text())
+            .then(html => {
+                const temp = document.createElement("div");
+                temp.innerHTML = html;
+
+                temp.querySelectorAll("#product-list > a")
+                    .forEach(item => productList.appendChild(item));
+
+                const nextLink = temp.querySelector("#next-page-link");
+                nextPageUrl = nextLink ? nextLink.href : null;
+
+                loading = false;
+                loader.style.display = "none";
+
+                if (!nextPageUrl) observer.disconnect();
+            })
+            .catch(() => {
+                loading = false;
+                loader.style.display = "none";
+            });
+    }
+});
+</script>
+
+</body>
+</html>
+
+
+

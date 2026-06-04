@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ product.name }}</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f5f5;
+    margin: 0;
+}
+
+/* MAIN CONTAINER */
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    background: white;
+    padding: 30px;
+    display: flex;
+    gap: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* IMAGE */
+.img-box img {
+    width: 420px;
+    height: 420px;
+    object-fit: cover;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+.img-box img:hover {
+    transform: scale(1.05);
+}
+
+/* INFO */
+.info {
+    flex: 1;
+}
+h1 {
+    margin-bottom: 10px;
+}
+
+/* PRICE */
+.price {
+    font-size: 28px;
+    color: green;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+CUSTOMER RATING
+
+
+.customer-rating {
+    margin: 10px 0;
+    padding: 10px 14px;
+    background: #fff8e1;
+    border-radius: 8px;
+    border: 1px solid #ffe082;
+    display: inline-block;
+}
+.customer-rating .stars {
+    color: #ff9800;
+    font-size: 20px;
+}
+.customer-rating .count {
+    font-size: 14px;
+    color: #555;
+} */
+
+BADGES
+.badge {
+    display: inline-block;
+    background: #e8f5e9;
+    color: green;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    margin: 5px 0;
+}
+.premium {
+    background: gold;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+/* DESCRIPTION */
+.desc {
+    margin-top: 15px;
+    color: #444;
+    line-height: 1.5;
+}
+
+ BUTTONS 
+.buttons {
+    margin-top: 20px;
+}
+.btn {
+    padding: 12px 18px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 15px;
+    margin-right: 10px;
+}
+.cart {
+    background: orange;
+    color: white;
+}
+.buy {
+    background: red;
+    color: white;
+}
+
+/* BACK */
+.back {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: purple;
+}
+
+/* REVIEW FORM */
+.review-form {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+.review-form h2 {
+    margin-bottom: 15px;
+}
+.review-form input,
+.review-form textarea {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+.review-form textarea {
+    height: 160px;
+}
+
+/* STAR INPUT */
+.star-rating input {
+    display: none;
+}
+.star-rating label {
+    font-size: 32px;
+    color: #ccc;
+    cursor: pointer;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+
+/* SUBMIT */
+.review-form button {
+    padding: 14px 20px;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.review-form button:hover {
+    background: #0056b3;
+}
+
+/* REVIEWS */
+.review-list {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+}
+.review-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+.review-stars {
+    color: gold;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PRODUCT -->
+<div class="container">
+
+    <div class="img-box">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    </div>
+
+    <div class="info">
+        <h1>{{ product.name }}</h1>
+
+        <div class="price">₹{{ product.price }}</div>
+
+        <!-- CUSTOMER RATING -->
+         <div class="customer-rating">
+    {% if review_count %}
+        <div class="stars">
+            {% for i in "12345" %}
+                {% if forloop.counter <= average_rating %}
+                    ★
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="count">
+            {{ average_rating }} / 5 · {{ review_count }} reviews
+        </div>
+    {% else %}
+        <div class="count">No ratings yet</div>
+    {% endif %}
+</div>
+
+        
+
+        <div>
+            <span class="badge">🚚 Free Delivery</span>
+            <span class="premium">Premium Quality</span>
+        </div>
+
+        <p class="desc">{{ product.description }}</p>
+
+        <div class="buttons">
+            <button class="btn cart">Add to Cart</button>
+            <button class="btn buy">Buy Now</button>
+        </div>
+
+        <a class="back" href="/">⬅ Back to products</a>
+    </div>
+</div> 
+
+<!-- REVIEW FORM -->
+<div class="review-form">
+    <h2>Write a Review</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="name" placeholder="Your Name" required>
+
+        <label>Your Rating</label>
+        <div class="star-rating">
+            <input type="radio" id="star5" name="rating" value="5" required>
+            <label for="star5">★</label>
+
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4">★</label>
+
+            <input type="radio" id="star3" name="rating" value="3">
+            <label for="star3">★</label>
+
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2">★</label>
+
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1">★</label>
+        </div>
+
+        <input type="text" name="title" placeholder="Review Title" required>
+        <textarea name="comment" placeholder="Write your experience..." required></textarea>
+
+        <button type="submit">Submit Review</button>
+    </form>
+</div>
+
+<!-- CUSTOMER REVIEWS -->
+<!-- <div class="review-list">
+    <h2>Customer Reviews</h2>
+
+    {% for review in reviews %}
+        <div class="review-item">
+            <strong>{{ review.name }}</strong>
+            <div class="review-stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <h4>{{ review.title }}</h4>
+            <p>{{ review.comment }}</p>
+        </div>
+    {% empty %}
+        <p>No reviews yet.</p>
+    {% endfor %}
+</div>
+
+</body>
+</html> -->
+
+
+<h2>Customer Reviews</h2>
+
+{% for review in reviews %}
+    <div class="review-item">
+        <strong>{{ review.name }}</strong>
+
+        <div class="review-stars">
+            {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                    ★
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <h4>{{ review.title }}</h4>
+        <p>{{ review.comment }}</p>
+    </div>
+{% empty %}
+    <p>No reviews yet.</p>
+{% endfor %}
+
+<!-- VIEW ALL REVIEWS BUTTON -->
+{% if review_count > 3 %}
+    <a href="{% url 'all_reviews' product.pk %}" class="view-all">
+        View all {{ review_count }} reviews →
+    </a>
+{% endif %}      
+
+<!-- <div class="pagination">
+
+    {% if reviews.has_previous %}
+        <a href="?page={{ reviews.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    Page {{ reviews.number }} of {{ reviews.paginator.num_pages }}
+
+    {% if reviews.has_next %}
+        <a href="?page={{ reviews.next_page_number }}">Next</a>
+    {% endif %}
+
+</div> -->
+<!-- <div class="pagination">
+
+    {% if reviews.has_previous %}
+        <a href="?page={{ reviews.previous_page_number }}">← Previous</a>
+    {% endif %}
+
+    {% for num in reviews.paginator.page_range %}
+        {% if reviews.number == num %}
+            <strong>{{ num }}</strong>
+        {% else %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %} -->
+
+    <!-- {% if reviews.has_next %}
+        <a href="?page={{ reviews.next_page_number }}">Next →</a>
+    {% endif %}
+
+</div> -->
+
+<a href="{% url 'product_detail' product.pk %}">⬅ Back to product</a> 
